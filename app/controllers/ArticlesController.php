@@ -127,19 +127,33 @@ class ArticlesController extends \BaseController {
         
         //create method to export article
         public function export(){
-            Excel::create('Filename', function($excel){
+        	$date = new DateTime();
+        	$datestr = $date->format('Y-m-d_H:i:s');
+        	$filename = "Article_".$datestr;
+            Excel::create($filename, function($excel){
 
             	$excel->sheet('Article', function($sheet){
-            		$users = Article::orderBy('created_at','desc')->get();
-            		$sheet->loadView('articles.csv',['users'=>$users->toArray()]);
+            		$articles = Article::orderBy('created_at','desc')->get();
+            		$sheet->loadView('articles.article_csv',['articles'=>$articles->toArray()]);
             	});
+
+            	$excel->sheet('Comment', function($sheet){
+            		$comments = Comment::orderBy('created_at','desc')->get();
+            		$sheet->loadView('articles.comment_csv',['comments'=>$comments->toArray()]);
+            	});
+            	
             })->download('xls');
 
         }
         
         //create method to import article
         public function import(){
-            
+            //import a user provider file
+            $file = Input::file('report');
+            if(Filesystem::exists('/app')){
+            	Redirect::to('images/create');
+            }
+
         }
 
 }

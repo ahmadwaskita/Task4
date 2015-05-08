@@ -1,0 +1,20 @@
+<table>
+ <tbody>
+  <tr>
+   <td>Title</td>
+   <td>Content</td>
+   <td>Author</td>
+   <td>Created_at</td>
+   <td>Updated_at</td>
+  </tr>
+  @foreach($articles as $article)
+  <tr>
+   <td>{{$article['title']}}</td>
+   <td>{{$article['content']}}</td>
+   <td>{{$article['author']}}</td>
+   <td>{{$article['created_at']}}</td>
+   <td>{{$article['updated_at']}}</td>
+  </tr>
+  @endforeach
+ </tbody>
+</table>
