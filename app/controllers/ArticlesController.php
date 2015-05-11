@@ -10,8 +10,8 @@ class ArticlesController extends \BaseController {
 	public function index()
 	{
 		//
-		$articles = Article::all();
-		return View::make('articles.index')->with('articles', $articles);
+		$articles = Article::paginate(2);
+		return View::make('articles.index', compact('articles'))->with('articles', $articles);
 	}
 
 
@@ -126,19 +126,20 @@ class ArticlesController extends \BaseController {
 	}
         
         //create method to export article
-        public function export(){
+        public function export($id){
+        	
         	$date = new DateTime();
         	$datestr = $date->format('Y-m-d_H:i:s');
         	$filename = "Article_".$datestr;
-            Excel::create($filename, function($excel){
+            Excel::create($filename, function($excel) use($id){
 
-            	$excel->sheet('Article', function($sheet){
-            		$articles = Article::orderBy('created_at','desc')->get();
+            	$excel->sheet('Article', function($sheet) use($id){
+            		$articles = Article::where('id','=',$id)->orderBy('created_at','desc')->get();
             		$sheet->loadView('articles.article_csv',['articles'=>$articles->toArray()]);
             	});
 
-            	$excel->sheet('Comment', function($sheet){
-            		$comments = Comment::orderBy('created_at','desc')->get();
+            	$excel->sheet('Comment', function($sheet) use($id){
+            		$comments = Comment::where('article_id','=',$id)->orderBy('created_at','desc')->get();
             		$sheet->loadView('articles.comment_csv',['comments'=>$comments->toArray()]);
             	});
             	
@@ -148,11 +149,32 @@ class ArticlesController extends \BaseController {
         
         //create method to import article
         public function import(){
-            //import a user provider file
-            $file = Input::file('report');
-            if(Filesystem::exists('/app')){
-            	Redirect::to('images/create');
-            }
+
+        		$rules = array(
+
+        			'report' => 'required|mimes: xls,xlsx' 
+        		);
+
+        		/* still fail to validate
+
+        		$validate = Validator::make(Input::all(), $rules);
+        		if($validate->fails()){
+        			return Redirect::route('articles.index')
+        				->withErrors($validate)
+        				->withInput();
+        		}*/
+
+            	$file = Input::file('report');
+            	$filename = $file->getClientOriginalName();
+            	$filename = pathinfo($filename, PATHINFO_FILENAME);
+            	
+            	$fullname = $filename.'.'.$file->getClientOriginalExtension();
+
+            	$upload = $file->move(public_path().'/uploads', $fullname);
+     		       	
+        	
+     
+
 
         }
 

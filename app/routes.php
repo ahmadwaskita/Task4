@@ -18,6 +18,6 @@ Route::get('/', function()
 
 Route::resource('articles', 'ArticlesController');
 Route::resource('comments', 'CommentsController');
-Route::get('export',array('as'=>'articles.export','uses'=>'ArticlesController@export'));
-Route::get('import',array('as'=>'articles.import','uses'=>'ArticlesController@import'));
+Route::get('export/{articles}',array('as'=>'articles.export','uses'=>'ArticlesController@export'));
+Route::post('import',array('as'=>'articles.import','uses'=>'ArticlesController@import'));
 

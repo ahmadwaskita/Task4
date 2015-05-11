@@ -7,11 +7,6 @@
 	@if(Session::has('notice'))
 		<div class="alert alert-info">{{Session::get('notice')}}</div>
 	@endif
-        
-        <a href="{{URL::route('articles.export')}}"><button>Export</button></a>
-        {{Form::open(array('route'=>array('articles.import'), 'method'=>'PUT', 'files'=>'true'))}}
-        {{Form::button('Import')}}
-        {{Form::close()}}
 
 	@foreach($articles as $article)
 		<div>
@@ -29,4 +24,6 @@
 			</div>
 		</div>
 	@endforeach
+
+	<div class="pagination"> {{$articles->links()}} </div>
 @stop

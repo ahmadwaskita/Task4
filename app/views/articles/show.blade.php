@@ -1,6 +1,20 @@
 @extends("layouts.application")
 
 @section("content")
+	
+	<label>Click to export file</label>
+	<p>{{link_to('export/'.$article->id,'Export',array('class'=>'btn btn-info'))}}</p>
+	
+    <p></p>
+    OR
+    <p></p>
+    {{Form::open(array('route'=>array('articles.import'), 'method'=>'POST', 'files'=>'true'))}}
+    <p></p>
+    {{Form::label('text','Select a file to import')}}
+    {{Form::file('report',array('class'=>'btn btn-info'))}}
+    <p></p>
+    {{Form::submit('Import')}}
+    {{Form::close()}}
 
 	<div>
 		<h1>{{$article->title}}</h1>
