@@ -9,8 +9,8 @@ class ArticlesController extends \BaseController {
 	 */
 	public function index()
 	{
-		//
-		$articles = Article::paginate(2);
+		//create pagination for every 10 articles
+		$articles = Article::paginate(10);
 		return View::make('articles.index', compact('articles'))->with('articles', $articles);
 	}
 
@@ -125,57 +125,98 @@ class ArticlesController extends \BaseController {
 		return Redirect::to('articles');
 	}
         
-        //create method to export article
-        public function export($id){
+    //create method to export article
+    public function export($id){
         	
-        	$date = new DateTime();
-        	$datestr = $date->format('Y-m-d_H:i:s');
-        	$filename = "Article_".$datestr;
-            Excel::create($filename, function($excel) use($id){
+      	$date = new DateTime();
+        $datestr = $date->format('Y-m-d_H:i:s');
+        $filename = "Article_".$datestr;
+        Excel::create($filename, function($excel) use($id){
 
-            	$excel->sheet('Article', function($sheet) use($id){
-            		$articles = Article::where('id','=',$id)->orderBy('created_at','desc')->get();
-            		$sheet->loadView('articles.article_csv',['articles'=>$articles->toArray()]);
-            	});
+            $excel->sheet('Article', function($sheet) use($id){
+            	$articles = Article::where('id','=',$id)->orderBy('created_at','desc')->get();
+            	$sheet->loadView('articles.article_csv',['articles'=>$articles->toArray()]);
+            });
 
-            	$excel->sheet('Comment', function($sheet) use($id){
-            		$comments = Comment::where('article_id','=',$id)->orderBy('created_at','desc')->get();
-            		$sheet->loadView('articles.comment_csv',['comments'=>$comments->toArray()]);
-            	});
+            $excel->sheet('Comment', function($sheet) use($id){
+            	$comments = Comment::where('article_id','=',$id)->orderBy('created_at','desc')->get();
+            	$sheet->loadView('articles.comment_csv',['comments'=>$comments->toArray()]);
+            });
             	
-            })->download('xls');
+        })->download('xls');
 
-        }
+    	Session::flash('notice','Success exporting article');
+		return Redirect::to('articles.index');
+
+    }
         
         //create method to import article
         public function import(){
 
-        		$rules = array(
-
-        			'report' => 'required|mimes: xls,xlsx' 
-        		);
-
-        		/* still fail to validate
-
-        		$validate = Validator::make(Input::all(), $rules);
+        		/* still fail to validate, will use custom validation (in progress)
+        		
+        		$validate = Validator::make(Input::all(), Article::valid());
         		if($validate->fails()){
-        			return Redirect::route('articles.index')
+        			return Redirect::to('articles')
         				->withErrors($validate)
         				->withInput();
-        		}*/
+        		}
+        		*/
 
             	$file = Input::file('report');
             	$filename = $file->getClientOriginalName();
             	$filename = pathinfo($filename, PATHINFO_FILENAME);
             	
-            	$fullname = $filename.'.'.$file->getClientOriginalExtension();
+            	$fullname = Str::slug(Str::random(8).'_'.$filename).'.'.$file->getClientOriginalExtension();
 
             	$upload = $file->move(public_path().'/uploads', $fullname);
-     		       	
-        	
-     
 
+            	if($upload){
+            		$articles = new Article;
 
+            		Excel::selectSheets('Article')->load(public_path().'/uploads/'.$fullname, function($reader)use($articles){
+
+            			$obj_article = [];
+            			$results = $reader->get();
+            			foreach ($results as $obj) {
+            				$obj_article = json_decode($obj, true);
+            			}
+            			
+            			$articles->title = $obj_article['title'];
+            			$articles->content = $obj_article['content'];
+            			$articles->author = $obj_article['author'];
+            			$articles->created_at = $obj_article['created_at'];
+            			$articles->updated_at = $obj_article['updated_at'];
+            			$articles->save();
+            			Session::flash('notice', 'Success import article');
+            			
+            		});
+
+            		Excel::selectSheets('Comment')->load(public_path().'/uploads/'.$fullname, function($reader)use($articles){
+            			
+            			$obj_comment = [];
+            			$results = $reader->get();
+            			$obj_comment= json_decode($results, true);
+            			$id['article_id'] = $articles->id;
+
+            			for($i=0; $i<count($obj_comment);$i++){
+            				
+            				//gunakan objek berbeda untuk mengisi value yg berbeda
+            				$comments[$i] = new Comment;
+            				$comments[$i]->article_id = $id['article_id'];
+            				$comments[$i]->content = $obj_comment[$i]['content'];
+            				$comments[$i]->user = $obj_comment[$i]['user'];
+            				$comments[$i]->created_at = $obj_comment[$i]['created_at'];
+            				$comments[$i]->updated_at = $obj_comment[$i]['updated_at'];
+            				$comments[$i]->save();
+            			}
+
+            		});
+            		
+            	}
+
+            	Session::flash('notice', 'Success import article');
+            	return Redirect::to('articles');   	
         }
 
 }

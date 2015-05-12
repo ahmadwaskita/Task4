@@ -5,7 +5,8 @@ class Article extends \Eloquent {
 		return array(
 			'title'=>'required|min:10|unique:articles,title',
 			'content'=>'required|min:10|unique:articles,content',
-			'author'=>'required'
+			'author'=>'required',
+			'report' =>'required|mimes:xls,xlsx'
 		);
 	}
 
