@@ -7,13 +7,19 @@
 	@if(Session::has('notice'))
 		<div class="alert alert-info">{{Session::get('notice')}}</div>
 	@endif
-	@if(Session::has('error'))
-		<div class="alert alert-info">{{Session::get('error')}}</div>
+	
+	@if($errors->has())
+		<div class="alert alert-danger">
+			@foreach($errors->all() as $error)
+				{{$error}}<br>
+			@endforeach
+		</div>
 	@endif
+
 	{{Form::open(array('route'=>array('articles.import'), 'method'=>'POST', 'files'=>'true'))}}
     <p></p>
     {{Form::label('text','Select a file to import')}}
-    {{Form::file('report',array('class'=>'btn btn-info'))}}
+    {{Form::file('import',array('class'=>'btn btn-info'))}}
     <p></p>
     {{Form::submit('Import')}}
     {{Form::close()}}

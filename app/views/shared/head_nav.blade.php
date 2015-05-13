@@ -11,9 +11,7 @@
 		</div>
 		<div class="collapse navbar-collapse">
 		<ul class="nav navbar-nav navbar-right">
-			<li>Home</li>
-			<li>Gallery</li>
-			<li>Article</li>
+			
 		</ul>
 		</div>
 	</div>	

@@ -153,17 +153,33 @@ class ArticlesController extends \BaseController {
         //create method to import article
         public function import(){
 
-        		/* still fail to validate, will use custom validation (in progress)
-        		
-        		$validate = Validator::make(Input::all(), Article::valid());
+        		// still fail to validate
+        		$file = Input::file('import');
+        		//var_dump($file->getMimeType());
+        		//var_dump($file->getClientOriginalExtension());
+        		//var_dump($file->guessExtension());
+        		//$newfile = $file->getClientOriginalName().'.'.$file->getClientOriginalExtension();
+        		//$mime = File::extension($newfile);
+        		//var_dump($mime);
+
+        		$validate = Validator::make(
+        			[
+        				'import' => $file,
+        				'extension' =>\Str::lower($file->getClientOriginalExtension()),
+        			],
+        			[
+        				'import' => 'required',
+            			'extension'  => 'required|in:xlsx,xls',
+        			]
+        		);
         		if($validate->fails()){
+        			$messages = $validate->messages();
         			return Redirect::to('articles')
         				->withErrors($validate)
         				->withInput();
         		}
-        		*/
 
-            	$file = Input::file('report');
+            	
             	$filename = $file->getClientOriginalName();
             	$filename = pathinfo($filename, PATHINFO_FILENAME);
             	

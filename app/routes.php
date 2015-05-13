@@ -11,10 +11,7 @@
 |
 */
 
-Route::get('/', function()
-{
-	return View::make('hello');
-});
+Route::get('/',array('uses'=>'ArticlesController@index'));
 
 Route::resource('articles', 'ArticlesController');
 Route::resource('comments', 'CommentsController');

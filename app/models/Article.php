@@ -6,7 +6,20 @@ class Article extends \Eloquent {
 			'title'=>'required|min:10|unique:articles,title',
 			'content'=>'required|min:10|unique:articles,content',
 			'author'=>'required',
-			'report' =>'required|mimes:xls,xlsx'
+		);
+	}
+
+	
+	public static function validFile($file){
+		return Validator::make(
+			[
+				'import' 	=> $file,
+				'extension'	=> Str::lower($file->getClientOriginalExtension())
+			],
+			[
+				'import'	=> 'required',
+				'extension'	=> 'required|in:xls,xlsx'
+			]
 		);
 	}
 

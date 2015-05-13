@@ -125,6 +125,7 @@ return array(
 		'Codesleeve\AssetPipeline\AssetPipelineServiceProvider',
 		'Intervention\Image\ImageServiceProvider',
 		'Maatwebsite\Excel\ExcelServiceProvider',
+		
 
 	),
 
