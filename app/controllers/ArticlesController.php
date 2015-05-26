@@ -2,6 +2,10 @@
 
 class ArticlesController extends \BaseController {
 
+	/*
+	public function __construct(){
+		$this->beforeFilter('auth');
+	}*/
 	/**
 	 * Display a listing of the resource.
 	 *
@@ -11,6 +15,11 @@ class ArticlesController extends \BaseController {
 	{
 		//create pagination for every 10 articles
 		$articles = Article::paginate(10);
+
+		if(Request::ajax()){
+			return Response::json(View::make('articles.list', array('articles' =>$articles))->render());
+		}
+
 		return View::make('articles.index', compact('articles'))->with('articles', $articles);
 	}
 
@@ -162,6 +171,7 @@ class ArticlesController extends \BaseController {
         		//$mime = File::extension($newfile);
         		//var_dump($mime);
 
+        		/*
         		$validate = Validator::make(
         			[
         				'import' => $file,
@@ -171,14 +181,27 @@ class ArticlesController extends \BaseController {
         				'import' => 'required',
             			'extension'  => 'required|in:xlsx,xls',
         			]
-        		);
+        		);*/
+
+				$validate = Validator::make(
+					[
+						'import' => $file,
+						'mime' => $file->getMimeType(),
+					],
+					[
+						'import' => 'required',
+						'mime' => 'required|in:application/vnd.ms-office,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+					]
+				);
+
+				//$validate = Validator::make(Input::all(), Article::valid_file());
+
         		if($validate->fails()){
         			$messages = $validate->messages();
         			return Redirect::to('articles')
         				->withErrors($validate)
         				->withInput();
-        		}
-
+        		} 
             	
             	$filename = $file->getClientOriginalName();
             	$filename = pathinfo($filename, PATHINFO_FILENAME);

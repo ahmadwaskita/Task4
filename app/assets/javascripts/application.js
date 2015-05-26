@@ -13,4 +13,5 @@
 //= require jquery
 //= require bootstrap/jquery-1.11.1.js
 //= require bootstrap/bootstrap
+//= require custom
 //= require_tree .
